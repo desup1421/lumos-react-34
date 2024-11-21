@@ -1,11 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteTodo, toggleTodo, currentTodo } from "../redux/slices/todosSlice";
+// import { deleteTodo, toggleTodo, currentTodo } from "../redux/slices/todosSlice";
+import { fetchTodos, currentTodo, deleteTodo, toggleTodo } from "../redux/async/todosSlice";
 
 const TodoList = () => {
   const dispatch = useDispatch();
-  const { todos } = useSelector((state) => state.todos);
+  const { todos, loading, error, isSuccess } = useSelector((state) => state.todos);
   const lang = useSelector((state) => state.lang.lang);
+
+  useEffect(() => {
+    dispatch(fetchTodos());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if(isSuccess) {
+      dispatch(fetchTodos())
+    }
+  }, [isSuccess])
 
   if (todos.length === 0)
     return (
@@ -19,8 +30,11 @@ const TodoList = () => {
 
   const handleEdit = (e, todo) => {
     e.stopPropagation();
-    dispatch(currentTodo(todo));
+    dispatch(currentTodo(todo.id));
   };
+
+  if (loading) return <div className="alert alert-secondary text-center">Loading...</div>;
+  if (error) return <div className="alert alert-danger text-center">{error}</div>;
 
   return (
     <ul className="list-group">
@@ -30,7 +44,7 @@ const TodoList = () => {
           className={`list-group-item d-flex justify-content-between align-items-center ${
             todo.completed ? "list-group-item-success" : ""
           }`}
-          onClick={() => dispatch(toggleTodo(todo.id))}
+          onClick={() => dispatch(toggleTodo(todo))}
         >
           <span
             style={{
@@ -42,7 +56,7 @@ const TodoList = () => {
           </span>
           <div className="btn-group">
             <button
-              onClick={(e)=> handleEdit(e, todo)}
+              onClick={(e) => handleEdit(e, todo)}
               className="btn btn-warning btn-sm"
             >
               {lang === "en" ? "Edit" : "Sunting"}

@@ -1,13 +1,14 @@
 // src/components/TodoInput.js
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { addTodo, updateTodo } from "../redux/slices/todosSlice";
+// import { addTodo, updateTodo } from "../redux/slices/todosSlice";
+import { addTodo,updateTodo } from "../redux/async/todosSlice";
 import { v4 as uuidv4 } from "uuid";
 
 const TodoInput = () => {
   const dispatch = useDispatch();
   const [text, setText] = useState("");
-  const { isUpdate, todo } = useSelector((state) => state.todos);
+  const { isUpdate, todo, loading } = useSelector((state) => state.todos);
   const lang = useSelector((state) => state.lang.lang);
 
   useEffect(()=> {
@@ -46,9 +47,10 @@ const TodoInput = () => {
           placeholder={lang === 'en' ? "Add a new task..." : "Tambahkan tugas baru..."}
           value={text}
           onChange={(e) => setText(e.target.value)}
+          disabled={loading}
           required
         />
-        <button type="submit" className={`btn ${isUpdate ? "btn-warning" : "btn-primary"}`}>
+        <button type="submit" className={`btn ${isUpdate ? "btn-warning" : "btn-primary"}`} disabled={loading}>
           {isUpdate ? lang === "en" ? "Update" : "Perbarui" : lang === "en" ? "Add" : "Tambah"}
         </button>
       </form>
